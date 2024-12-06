@@ -1,5 +1,6 @@
 "use client";
 
+import { deleteUserService, updateUserService } from "@/services/UsersService";
 import {
   Button,
   Card,
@@ -9,7 +10,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
-function UserCard({ user }) {
+function UserCard({ user, onUserUpdate }) {
   const [firstName, setFirstName] = useState();
   const [lastName, setLastName] = useState();
   const [editing, setEditing] = useState(false);
@@ -18,22 +19,40 @@ function UserCard({ user }) {
     setEditing(true);
   };
 
-  const handleSave = () => {
-    console.log("Guardando Usuario");
+  const handleSave = async () => {
+    let response = await updateUserService({
+      id: user.id,
+      name: firstName,
+      lastname: lastName,
+      username: user.username,
+    });
+
+    if (response.ok) {
+      onUserUpdate();
+      setEditing(false);
+    } else {
+      alert("Error");
+    }
   };
 
   const handleCancel = () => {
-    console.log("Cancelar");
     setEditing(false);
   };
 
-  const handleDelete = () => {
-    console.log("Borrado");
+  const handleDelete = async() => {
+    let response = await deleteUserService(user.id);
+
+    if(response.ok) {
+      onUserUpdate();
+    } else {
+      alert('Error al eliminar usuario')
+    }
+
   };
 
   useEffect(() => {
-    setFirstName(user.firstName);
-    setLastName(user.lastName);
+    setFirstName(user.name);
+    setLastName(user.lastname);
   }, [user]);
 
   return (
